@@ -2,6 +2,7 @@ import { stat, createWriteStream } from 'fs';
 import { NextRequest, NextResponse } from 'next/server';
 import ytdl from 'ytdl-core';
 import { join } from 'path';
+import { headers } from 'next/headers';
 
 export async function GET(req: NextRequest) {
   const url = req.nextUrl.searchParams.get('url');
@@ -26,7 +27,7 @@ export async function GET(req: NextRequest) {
     });
 
     const fileUrl = `/${title}.mp3`;
-    console.log(fileUrl);
+
     return NextResponse.json({ filePath: fileUrl })
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
