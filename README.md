@@ -23,31 +23,6 @@ git clone https://github.com/yourusername/yt-to-mp3.git
 cd yt-to-mp3
 ```
 
-### Environment Setup
-
-Create a `.env` file in the root directory with the following content:
-
-```env
-NODE_ENV=production
-```
-
-### Install Dependencies
-
-You need to install `ffmpeg` on your local machine if you are not using Docker.
-
-#### For macOS:
-
-```sh
-brew install ffmpeg
-```
-
-#### For Ubuntu:
-
-```sh
-sudo apt update
-sudo apt install ffmpeg
-```
-
 ### Docker Setup
 
 Build and run the Docker container:
