@@ -1,8 +1,7 @@
+import { stat, createWriteStream } from 'fs';
 import { NextRequest, NextResponse } from 'next/server';
 import ytdl from 'ytdl-core';
-import ffmpeg from 'fluent-ffmpeg';
-import fs from 'fs';
-import path from 'path';
+import { join } from 'path';
 
 export async function GET(req: NextRequest) {
   const url = req.nextUrl.searchParams.get('url');
@@ -13,25 +12,22 @@ export async function GET(req: NextRequest) {
 
   try {
     const info = await ytdl.getInfo(url);
-    const videoTitle = info.videoDetails.title.replace(/[^\w\s]/gi, '');
-    const filePath = path.resolve(process.cwd(), 'public', `${videoTitle}.mp3`);
-    const publicPath = path.join('/', `${videoTitle}.mp3`);
-
-    console.log(`Saving MP3 to: ${filePath}`); // Adicionando log
+    let audioFormats = ytdl.filterFormats(info.formats, 'audioonly');
+    
+    const title = info.videoDetails.title.replace(/[^\w\s]/gi, '-');
+    const filePath = join(process.cwd(), 'public', `${title}.mp3`);
+    const writer = createWriteStream(filePath);
 
     await new Promise((resolve, reject) => {
-      const stream = ytdl(url, { quality: 'highestaudio' });
-
-      ffmpeg(stream)
-        .audioBitrate(128)
-        .save(filePath)
-        .on('end', resolve)
+      ytdl.downloadFromInfo(info, { format: audioFormats[0] })
+        .pipe(writer)
+        .on('finish', resolve)
         .on('error', reject);
     });
 
-    console.log(`File saved, serving from: ${publicPath}`); // Adicionando log
-
-    return NextResponse.json({ filePath: publicPath });
+    const fileUrl = `/${title}.mp3`;
+    console.log(fileUrl);
+    return NextResponse.json({ filePath: fileUrl })
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
