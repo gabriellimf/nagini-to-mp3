@@ -1,35 +1,33 @@
-import { stat, createWriteStream } from 'fs';
-import { NextRequest, NextResponse } from 'next/server';
-import ytdl from 'ytdl-core';
-import { join } from 'path';
-import { headers } from 'next/headers';
+import { NextRequest } from "next/server";
+import ytdl from "ytdl-core";
 
-export async function GET(req: NextRequest) {
-  const url = req.nextUrl.searchParams.get('url');
+export async function GET(request: NextRequest) {
+  const requestUrl = new URL(request.url);
+  const url = requestUrl.searchParams.get('url') || '';
 
-  if (!url) {
-    return NextResponse.json({ error: 'URL is required' }, { status: 400 });
+  if (!ytdl.validateURL(url)) {
+    return new Response(JSON.stringify({ message: 'Invalid URL' }), { status: 400 });
   }
 
-  try {
-    const info = await ytdl.getInfo(url);
-    let audioFormats = ytdl.filterFormats(info.formats, 'audioonly');
-    
-    const title = info.videoDetails.title.replace(/[^\w\s]/gi, '-');
-    const filePath = join(process.cwd(), 'public', `${title}.mp3`);
-    const writer = createWriteStream(filePath);
+  const info = await ytdl.getInfo(url);
+  const validateURL = ytdl.validateURL(url);
+  const title = info.videoDetails.title;
+  
+  console.log('Title:', title);
 
-    await new Promise((resolve, reject) => {
-      ytdl.downloadFromInfo(info, { format: audioFormats[0] })
-        .pipe(writer)
-        .on('finish', resolve)
-        .on('error', reject);
-    });
+  const headers = {
+    'Content-Disposition': `attachment; filename="${title}.mp3"`,
+    'Content-Type': 'audio/mpeg'
+  };
 
-    const fileUrl = `/${title}.mp3`;
+  console.log('Headers:', headers)
 
-    return NextResponse.json({ filePath: fileUrl })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
+  const audioFormat = ytdl.chooseFormat(info.formats, { filter: "audioonly" });
+  const audioStream = ytdl.downloadFromInfo(info, { format: audioFormat });
+
+  console.log('Audio Stream:', audioStream);
+
+  audioStream.pipe
+
+  return new Response(audioStream as any, { status: 200, headers });
 }
