@@ -12,12 +12,9 @@ const Home = () => {
     event.preventDefault();
 
     const response = await fetch(`/api/download?url=${encodeURIComponent(url)}`);
-    const data = await response.json();
 
     if (response.ok) {
-      setDownloadLink(data.filePath);
-    } else {
-      alert(data.error);
+      setDownloadLink(response.url);
     }
   };
 
