@@ -1,17 +1,19 @@
 "use client";
 
-import { useState } from 'react';
-import Image from 'next/image'
+import { useState } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 
 const Home = () => {
-  const [url, setUrl] = useState('');
-  const [downloadLink, setDownloadLink] = useState('');
+  const [url, setUrl] = useState("");
+  const [downloadLink, setDownloadLink] = useState("");
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    const response = await fetch(`/api/download?url=${encodeURIComponent(url)}`);
+    const response = await fetch(
+      `/api/download?url=${encodeURIComponent(url)}`
+    );
 
     if (response.ok) {
       setDownloadLink(response.url);
@@ -26,21 +28,29 @@ const Home = () => {
           animate={{
             scale: [1, 1, 1, 1, 1],
             rotate: [0, 0, 360, 360, 0],
-            borderRadius: ["50%", "50%", "50%", "50%", "50%"]
+            borderRadius: ["50%", "50%", "50%", "50%", "50%"],
           }}
           transition={{
             duration: 3,
             ease: "easeInOut",
             times: [0, 0.2, 0.5, 0.8, 1],
             repeat: Infinity,
-            repeatDelay: 4
+            repeatDelay: 4,
           }}
         >
-          <Image className="rounded" src={'/assets/images/nagini_transparent.png'} width={300} height={300} alt="Nagini Logo" />
+          <Image
+            className="rounded"
+            src={"/assets/images/nagini_transparent.png"}
+            width={300}
+            height={300}
+            alt="Nagini Logo"
+          />
         </motion.div>
       </div>
       <div className="w-full max-w-lg px-4">
-        <h1 className="text-4xl font-medium text-gray-900 dark:text-black text-center">NAGINI.MP3</h1>
+        <h1 className="text-4xl font-medium text-gray-900 dark:text-black text-center">
+          NAGINI.MP3
+        </h1>
         <hr className="w-48 h-1 mx-auto my-4 bg-gray-100 border-0 rounded md:my-8 dark:bg-gray-700" />
         <div>
           <form onSubmit={handleSubmit} className="space-x-4 flex">
@@ -48,7 +58,10 @@ const Home = () => {
               type="text"
               placeholder="Enter YouTube URL"
               value={url}
-              onChange={(e) => setUrl(e.target.value)}
+              onChange={(e) => {
+                setUrl(e.target.value);
+                setDownloadLink("");
+              }}
               className="w-full p-4 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             />
             {!downloadLink ? (
@@ -56,7 +69,11 @@ const Home = () => {
                 Converter
               </button>
             ) : (
-              <a href={downloadLink} download className="w-32 bg-pink-200 hover:bg-gray-100 text-gray-800 font-semibold py-4 px-4 border border-gray-400 rounded shadow text-center">
+              <a
+                href={downloadLink}
+                download
+                className="w-32 bg-pink-200 hover:bg-gray-100 text-gray-800 font-semibold py-4 px-4 border border-gray-400 rounded shadow text-center"
+              >
                 Baixar
               </a>
             )}
